@@ -1,3 +1,11 @@
+// NEON VOID hand-in for best-game-01 (written for this entry, not the starter):
+// the game in game/ is a neon twin-stick arena shooter — WASD to move, mouse to aim,
+// hold click or Space to fire. Waves of chasers, shooters, splitters and brutes close
+// in with escalating difficulty; the Void Warden boss arrives every 5 waves, and clearing
+// a wave offers a pick of three upgrades. Score chains into a combo multiplier, the best
+// score persists in localStorage, and WebAudio synth supplies the sound effects and the
+// bass loop. game/src/shots.js stages the four deterministic ?shot= scenes (play, start,
+// upgrade, end) from a seeded autopilot, so the screenshots are frames a real game makes.
 // A working best-game-01 entry (Node 22, standard library only): the game is this directory's
 // game/ folder, plain static files a desktop browser loads offline (game/index.html and its ES
 // modules, no library and no network request), and the program hands it in. It copies game/ and
@@ -12,7 +20,7 @@
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -38,4 +46,18 @@ writeFileSync(
     game_max_bytes: 50331648,
     game_path_max_bytes: 1000,
   }),
+);
+
+// NEON VOID hand-in summary, printed so the run log shows what was handed in.
+function countFiles(dir: string): number {
+  let total = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    total += entry.isDirectory() ? countFiles(join(dir, entry.name)) : 1;
+  }
+  return total;
+}
+const dossierBytes = statSync(join(out, 'dossier.json')).size;
+console.log(
+  `NEON VOID handed in: ${countFiles(join(out, 'game'))} game files, ` +
+    `${readdirSync(join(out, 'screenshots')).length} screenshots, dossier ${dossierBytes} bytes.`,
 );
